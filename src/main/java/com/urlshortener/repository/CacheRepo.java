@@ -13,7 +13,7 @@ import com.urlshortener.pojo.URLInfo;
 public class CacheRepo {
     private final RedisTemplate<String, URLInfo> redisTemplate;
     private final HashOperations<String,String,String> hashOperations;
-    private static final String MAIN_KEY = "URL";
+    private static final String MAIN_KEY = "SESSION_ID";
 
     public CacheRepo (RedisTemplate <String, URLInfo> redisTemplate) {
         this.redisTemplate = redisTemplate;

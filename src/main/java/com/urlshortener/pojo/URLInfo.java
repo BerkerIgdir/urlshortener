@@ -1,7 +1,9 @@
 package com.urlshortener.pojo;
 
 
-public class URLInfo {
+import java.io.Serializable;
+
+public class URLInfo implements Serializable {
     private long id;
     private final String shortUrl;
     private final String longUrl;

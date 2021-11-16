@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.urlshortener.business.UrlSupplier;
 import com.urlshortener.pojo.URLInfo;
 import com.urlshortener.repository.CacheRepo;
 import com.urlshortener.repository.URLRepo;
@@ -18,24 +19,32 @@ public class ShortenerService {
     public static final String BASE_SHORTENED_URL = "http://localhost:8080/";
     private final URLRepo repo;
 
+    private final UrlSupplier supplyFromCache ;
+    private final UrlSupplier supplyFromDB ;
+    private final UrlSupplier supplyFromBusinessLogic = this::processBusinessLogic;
+
     public ShortenerService (CacheRepo cacheRepo , URLRepo repo) {
         this.cacheRepo = cacheRepo;
         this.repo = repo;
+        this.supplyFromCache = cacheRepo::getUrlFromCache;
+        this.supplyFromDB = s -> repo.findByShortUrl (s).map (URLInfo::getShortUrl);
     }
 
-    public String processUrl(String urlToProcess){
-        var shortUrlOptional = cacheRepo.getUrlFromCache (urlToProcess);
+    public String processUrl(final String urlToProcess, final String sessionId){
+
+        return supplyFromCache.getShortenedUrl (urlToProcess)
+                .or(() -> supplyFromDB.getShortenedUrl (urlToProcess))
+                .or (() -> supplyFromBusinessLogic.getShortenedUrl (urlToProcess))
+                .orElseThrow (RuntimeException::new);
+    }
+
+    private Optional<String> processBusinessLogic (String urlToProcess) {
         //This one will be moved to a validation class.
         var uri = stringToURL (urlToProcess);
         var id = HashUtils.sha256Hasher (uri.toString ())
                 .map (longId -> longId & Long.MAX_VALUE)
                 .orElseThrow (RuntimeException::new);
-
-        Supplier<Optional<String>> urlFromDbSupplier = () -> repo.findById (id).map (URLInfo::getShortUrl);
-
-        return shortUrlOptional
-                .or (urlFromDbSupplier)
-                .orElseGet (newUrlSupplier (urlToProcess,id));
+        return Optional.of (newUrlSupplier (urlToProcess,id));
     }
 
     public Optional<URI> getLongURL(String hashedString){
@@ -46,14 +55,13 @@ public class ShortenerService {
         return cacheCheck.or(shortToLongUrlSupplier).map (this::stringToURL);
     }
 
-    private Supplier <String> newUrlSupplier (String urlToProcess, long id){
-        return () -> {
+    private String newUrlSupplier (String urlToProcess, long id){
             var resultString = HashUtils.base62Hasher (id);
             var urlEntityToSave = new URLInfo (id,resultString,urlToProcess);
             cacheRepo.saveToCache (urlEntityToSave);
             repo.insert (urlEntityToSave);
+
             return resultString;
-        };
     }
 
     //Throws unchecked runtime exception.

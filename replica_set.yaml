@@ -7,6 +7,13 @@ services:
     ports:
     - 8080:8080
     restart: always
+    depends_on:
+      - mongodb1
+      - mongodb2
+      - mongodb3
+      - redis
+    networks:
+      - urlapplication
   mongodb1:
     image: mongo:latest
     restart: always
@@ -16,7 +23,8 @@ services:
     expose:
       - "27017"
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
-
+    networks:
+      - urlapplication
   mongodb2:
     image: mongo:latest
     restart: always
@@ -26,7 +34,8 @@ services:
     expose:
       - "27017"
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
-
+    networks:
+      - urlapplication
   mongodb3:
     image: mongo:latest
     restart: always
@@ -36,6 +45,8 @@ services:
     expose:
       - "27017"
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all" ]
+    networks:
+      - urlapplication
   redis:
     image: redis:latest
     restart: always
@@ -44,8 +55,14 @@ services:
       - redisdata:/data/db
     expose:
       - "6379"
+    networks:
+      - urlapplication
 volumes:
   mongodata1:
   mongodata2:
   mongodata3:
   redisdata:
+
+networks:
+  urlapplication:
+    driver: bridge

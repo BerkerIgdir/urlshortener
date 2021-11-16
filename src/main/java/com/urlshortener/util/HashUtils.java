@@ -27,7 +27,7 @@ public class HashUtils {
         return ShortenerService.BASE_SHORTENED_URL.concat (sb.toString ());
     }
 
-    public static Optional <Long> sha256Hasher (String url){
+    public static Optional <Long> sha256Hasher (String stringToHash){
         MessageDigest encryptor;
         try {
             encryptor = MessageDigest.getInstance ("SHA-256");
@@ -36,7 +36,7 @@ public class HashUtils {
             return Optional.empty ();
         }
 
-        encryptor.update (url.getBytes(StandardCharsets.UTF_8));
+        encryptor.update (stringToHash.getBytes(StandardCharsets.UTF_8));
 
         //A bad practice which may cause a data loss hence a possible hash collision.
         return Optional.of (new BigInteger (1,encryptor.digest ()).longValue ());
