@@ -5,22 +5,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.urlshortener.pojo.URLInfo;
 
 @Configuration
+@RedisHash
 public class RedisConfig {
 
-    @Value ("${spring.redis.host}")
-    private String hostName;
+    @Value("${spring.redis.host}")
+    private String HOST_NAME;
 
     @Value ("${spring.redis.port}")
-    private Integer port;
+    private int PORT;
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory ( new RedisStandaloneConfiguration(hostName, port));
+        return new JedisConnectionFactory ( new RedisStandaloneConfiguration(HOST_NAME, PORT));
     }
 
     @Bean

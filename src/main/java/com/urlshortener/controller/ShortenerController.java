@@ -1,7 +1,6 @@
 package com.urlshortener.controller;
 
 
-
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -23,16 +22,16 @@ import com.urlshortener.service.ShortenerService;
 public class ShortenerController {
     private final ShortenerService service;
 
-    public ShortenerController (ShortenerService service) {
+    public ShortenerController(ShortenerService service) {
         this.service = service;
     }
 
     @PostMapping(value = "/shorten", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ShortenerResponseDTO> shortenerEndpoint(@RequestBody ShortenerRequestDTO requestDTO,
-                                                                  HttpServletRequest request){
-        var responseDTO = new ShortenerResponseDTO (service.processUrl (requestDTO.getUrl (),request.getSession ().getId ()));
+                                                                  HttpServletRequest request) {
+        var responseDTO = new ShortenerResponseDTO(service.processUrl(requestDTO.getUrl(), request.getSession().getId()));
 
-        return ResponseEntity.status (HttpStatus.OK).body (responseDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
     }
 
 }

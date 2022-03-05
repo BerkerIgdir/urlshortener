@@ -2,24 +2,60 @@ version: '3'
 
 services:
   urlshortener:
-    build: .
+    image: urlshortener
     container_name: urlshortener
-    ports:
-    - 8080:8080
     restart: always
+    ports:
+    - "8080:8080"
     depends_on:
       - mongodb1
       - mongodb2
       - mongodb3
       - redis
+      - configserver
+      - discovery-service
     networks:
       - urlapplication
+  id-generator:
+    image: id-generator
+    container_name: id-generator
+    restart: always
+    expose:
+      - "8081"
+    depends_on:
+      - configserver
+      - discovery-service
+    networks:
+      - urlapplication
+  configserver:
+    image: local-configservice
+    container_name: configserver
+    restart: always
+    expose:
+      - "8071"
+    networks:
+      urlapplication:
+        aliases:
+          - "configserver"
+  discovery-service:
+    image: discovery-service
+    container_name: discovery-service
+    restart: always
+    ports:
+      - "8070:8070"
+    depends_on:
+      - configserver
+    networks:
+      urlapplication:
+        aliases:
+          - "discovery-service"
   mongodb1:
     image: mongo:latest
     restart: always
     container_name: mongodb1
     volumes:
       - mongodata1:/data/db
+      - ./rs-init.sh:/scripts/rs-init.sh
     expose:
       - "27017"
     entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]

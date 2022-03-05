@@ -16,9 +16,7 @@ public class ShortenerWebConfig extends WebSecurityConfigurerAdapter {
                  .csrf ().disable ().cors ().disable ()
                  .authorizeRequests()
                  .antMatchers(HttpMethod.POST,"/api/v1/**")
-                 .permitAll()
-                 .anyRequest ().authenticated ()
-                 .and ();
+                 .permitAll();
     }
 
 }

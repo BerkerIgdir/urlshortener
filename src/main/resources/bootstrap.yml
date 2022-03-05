@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: "optional:configserver:http://configserver:8071"
+  application:
+    name: urlshortener
+  profiles:
+    active: default
+  cloud:
+    config:
+      fail-fast: true
