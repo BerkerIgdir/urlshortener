@@ -18,28 +18,29 @@ import java.util.concurrent.ThreadLocalRandom;
 public class IdGeneratorServiceCaller {
     private static final String ID_GENERATOR_URI = "http://id-generator/api/v1/getId";
 
-    private final RestTemplate restTemplate ;
-    private final ThreadLocalRandom randomGenerator= ThreadLocalRandom.current();
-    public IdGeneratorServiceCaller(@Qualifier(value = "DiscoveryRestTemplate") RestTemplate restTemplate){
+    private final RestTemplate restTemplate;
+    private final ThreadLocalRandom randomGenerator = ThreadLocalRandom.current();
+
+    public IdGeneratorServiceCaller(@Qualifier(value = "DiscoveryRestTemplate") RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    @CircuitBreaker(name = "idGenServiceBreaker",fallbackMethod = "fallBackId")
+    @CircuitBreaker(name = "idGenServiceBreaker", fallbackMethod = "fallBackId")
     public Optional<Long> getIdFromIdService() {
-        return Optional.of (restTemplate.getForEntity (ID_GENERATOR_URI, Long.class))
-                .filter (resp -> HttpStatus.OK.equals (resp.getStatusCode ()))
-                .map (ResponseEntity::getBody);
+        return Optional.of(restTemplate.getForEntity(ID_GENERATOR_URI, Long.class))
+                .filter(resp -> HttpStatus.OK.equals(resp.getStatusCode()))
+                .map(ResponseEntity::getBody);
     }
 
     @Bean(name = "DiscoveryRestTemplate")
     @LoadBalanced
-    public static RestTemplate restTemplateBeanProvider(){
+    public static RestTemplate restTemplateBeanProvider() {
         return new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(7))
-                                        .setReadTimeout(Duration.ofSeconds(7))
-                                        .build();
+                .setReadTimeout(Duration.ofSeconds(7))
+                .build();
     }
 
-    private Optional<Long> fallBackId(Throwable t){
+    private Optional<Long> fallBackId(Throwable t) {
         return Optional.of(randomGenerator.nextLong());
     }
 }

@@ -8,3 +8,6 @@ spring:
   cloud:
     config:
       fail-fast: true
+      uri: http://configserver:8071
+logging:
+  config: ${spring.cloud.config.uri}/${spring.application.name}/${spring.profiles.active}/master/logback-${spring.profiles.active}.xml
