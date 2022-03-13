@@ -1,5 +1,6 @@
 package com.urlshortener.util;
 
+import com.urlshortener.config.security.usercontext.interceptor.UserContextInterceptor;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -36,6 +37,7 @@ public class IdGeneratorServiceCaller {
     @LoadBalanced
     public static RestTemplate restTemplateBeanProvider() {
         return new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(7))
+                .interceptors(new UserContextInterceptor())
                 .setReadTimeout(Duration.ofSeconds(7))
                 .build();
     }

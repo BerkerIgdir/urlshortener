@@ -4,11 +4,13 @@ import com.urlshortener.config.security.usercontext.UserContext;
 import com.urlshortener.config.security.usercontext.UserContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+@Component
 public class UserContextFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(UserContextFilter.class);
 
